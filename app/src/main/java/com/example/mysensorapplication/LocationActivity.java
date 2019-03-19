@@ -1,8 +1,10 @@
 package com.example.mysensorapplication;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -10,7 +12,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.BatteryManager;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +30,8 @@ public class LocationActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private LocationProvider locationProvider;
     private Geocoder geocoder;
+    private int batteryLevel;
+    TextToSpeech textToSpeech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,12 @@ public class LocationActivity extends AppCompatActivity {
         locationProvider = locationManager.getProvider(LocationManager.GPS_PROVIDER);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, listener);
         geocoder = new Geocoder(this, Locale.getDefault());
+        this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
+        textToSpeech = new TextToSpeech(this, status -> {
+            textToSpeech.speak("Hello world", TextToSpeech.QUEUE_FLUSH, null, null);
+            Log.d("LOCATION_PLACE TTS", "TTS WORKS");
+        });
     }
 
     @Override
@@ -65,7 +77,6 @@ public class LocationActivity extends AppCompatActivity {
     }
 
     private final LocationListener listener = new LocationListener() {
-
         @Override
         public void onLocationChanged(Location location) {
             final double latitude = location.getLatitude();
@@ -117,4 +128,12 @@ public class LocationActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+    private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context ctx, Intent intent) {
+            batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+            Log.d("LOCATION_PLACE BATTERY", Integer.toString(batteryLevel));
+        }
+    };
 }
