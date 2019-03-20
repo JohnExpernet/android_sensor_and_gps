@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
         sensorManager.registerListener(this, mTemperature, SensorManager.SENSOR_DELAY_NORMAL);
 
-        Intent i = new Intent(this, LocationActivity.class);
+        Intent i = new Intent(this, VoiceActivity.class);
         startActivity(i);
     }
 
